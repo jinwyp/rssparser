@@ -10,11 +10,14 @@
 class Rssparser 
 {
 
-	public static function parse()
+	public static function parse($feed_url, $count = 4)
 	{
+		if ($count == 0 ){
+			$count  = 4;
+		}
 		$sp = IoC::resolve('simplepie');
 
-		$sp->set_feed_url( Config::get('rssparser::rssparser.feed_url') );
+		$sp->set_feed_url( $feed_url );
 		$sp->enable_cache( Config::get('rssparser::rssparser.enable_cache') );
 		$sp->set_cache_duration( Config::get('rssparser::rssparser.cache_duration') );
 		$sp->set_cache_location( Config::get('rssparser::rssparser.cache_location') );		
@@ -23,7 +26,7 @@ class Rssparser
 
 		if($success)
 		{			
-			if( Config::get('rssparser::rssparser.result') === 'html' )
+			if( Config::get('rssparser::rssparser.format') === 'html' )
 			{
 				$html = '';
 				$html .= '<div id="'.Config::get('rssparser::rssparser.container_div_id').'"><ul>';
@@ -61,11 +64,33 @@ class Rssparser
 							
 				return $html;
 			}
+			elseif( Config::get('rssparser::rssparser.format') === 'json' )
+			{
+				$result_json = array();
+				foreach($sp->get_items(0, $count ) as $item)
+				{
+					$newitem = array(
+						"title" => $item->get_title(),
+						"description" => $item->get_description(),
+						"date" => $item->get_date('j F Y | g:i a'),
+						"author" => $item->get_author(),
+						"thumbnail" => $item->get_enclosure()->get_link(),
+						"thumbnail2" => $item->get_enclosure()->get_thumbnail(),
+						"link" => $item->get_link(),
+						"permalink" => $item->get_permalink(),
+					);
+					
+					$result_json[] = $newitem;
+				}	
+				
+				return $result_json;
+			}
 			else
 			{
+					
 				return $sp->get_raw_data();
 			}
-		}
+		}	
 		else
 		{
 			return 'Error reading rss';
