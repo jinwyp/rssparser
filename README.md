@@ -2,6 +2,10 @@
 
 Simple RSS feed parser Laravel Bundle
 
+2013/10/18 UPDATE SimplePie 1.31 for Laravel3 Bundle 
+
+The [rssparser bundle](https://github.com/subdesign/rssparser) was too old for laravel3, this version fixed bug and updated lib SimplePie 1.31
+
 ***
 
 ## Dependency (optional)
